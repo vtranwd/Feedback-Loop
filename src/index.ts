@@ -1,14 +1,26 @@
+import 'reflect-metadata';
 import express from 'express';
+import { buildSchema } from 'type-graphql';
+import { graphqlHTTP } from 'express-graphql';
+import { FeedbackResolver } from './resolvers/FeedbackResolver';
 
-const app = express();
 const PORT = 4000;
 
-app.use(express.json());
+async function main() {
+  const schema = await buildSchema({
+    resolvers: [FeedbackResolver],
+  });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+  const app = express();
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+  app.use('/graphql', graphqlHTTP({
+    schema: schema,
+    graphiql: true,
+  }));
+
+  app.listen(PORT, () => {
+    console.log(`GraphQL API running at http://localhost:${PORT}/graphql`);
+  });
+}
+
+main().catch(console.error);
