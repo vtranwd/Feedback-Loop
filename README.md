@@ -5,30 +5,31 @@ A production-ready GraphQL API for collecting and analyzing customer feedback. B
 ## Features
 
 ✅ **GraphQL API** - Type-safe API with TypeGraphQL  
+✅ **Authentication** - JWT-based user authentication  
 ✅ **Pagination** - Efficiently handle large datasets  
 ✅ **Error Handling** - Comprehensive input validation  
-✅ **Logging & Observability** - Track queries, errors, and performance  
-✅ **Database Indexes** - Optimized for common queries  
-✅ **Scalability Analysis** - Plan for growth  
+✅ **Logging & Observability** - Track queries and performance  
+✅ **Docker Support** - Easy local and cloud deployment  
+✅ **Database Optimization** - Indexes and efficient queries  
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- Docker (for Postgres)
-- npm
+- Docker Desktop
+- Node.js 18+ (for local development)
 
-### Installation
+### Option 1: Docker Compose (Recommended)
 
 ```bash
-# Clone the repo
-git clone https://github.com/vtranwd/feedback-loop.git
-cd feedback-loop
+docker-compose up
+```
 
-# Install dependencies
-npm install --legacy-peer-deps
+This starts Postgres and the backend. Visit http://localhost:4000/graphql
 
-# Start Postgres in Docker
+### Option 2: Local Development
+
+```bash
+# Start Postgres
 docker run --name feedback-postgres \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
@@ -36,25 +37,34 @@ docker run --name feedback-postgres \
   -p 5432:5432 \
   -d postgres:15
 
-# Create tables (from schema.sql or run manually)
-docker exec -it feedback-postgres psql -U postgres -d feedback
-# Then paste SQL from Part 2 of setup guide
-
-# Start the development server
+# Install and run
+npm install --legacy-peer-deps
 npm run dev
 ```
 
 Visit http://localhost:4000/graphql
 
-### Example Queries
+## Project Structure
+├── src/
+│ ├── index.ts # Server entry point
+│ ├── db.ts # Database connection
+│ ├── auth.ts # JWT utilities
+│ ├── logger.ts # Logging utility
+│ ├── entities/ # Data models
+│ ├── resolvers/ # GraphQL resolvers
+│ └── types/ # Custom types
+├── docker-compose.yml # Local development
+├── Dockerfile # Production container
+└── DEPLOYMENT.md # AWS deployment guide
+
+## API Examples
 
 **Create feedback:**
 ```graphql
 mutation {
-  createFeedback(text: "API is confusing", source: "slack") {
+  createFeedback(text: "Great API!", source: "slack") {
     id
     text
-    createdAt
   }
 }
 ```
@@ -70,42 +80,31 @@ query {
 }
 ```
 
-**Get most common feedback themes:**
+**Login:**
 ```graphql
-query {
-  topTags(limit: 10) {
-    name
-    count
+mutation {
+  login(email: "user@example.com", workspace: "engineering") {
+    token
+    userId
   }
 }
 ```
 
-See [QUERIES.md](./QUERIES.md) for full API documentation.
+See [QUERIES.md](./QUERIES.md) for full API reference.
 
 ## Architecture
 
-- **Frontend**: React (not included, use separately)
-- **API**: Express + TypeGraphQL
-- **Database**: PostgreSQL with indexes
-- **Deployment**: Docker + AWS (guide in [ARCHITECTURE.md](./ARCHITECTURE.md))
+- **Backend**: Express + TypeGraphQL + PostgreSQL
+- **Frontend**: React + Fetch (separate repo)
+- **Database**: PostgreSQL with strategic indexes
+- **Deployment**: Docker + AWS (ECS + RDS)
 
-## Performance
-
-Current performance with test data:
-
-| Operation | Latency |
-|-----------|---------|
-| listFeedback | 5-10ms |
-| createFeedback | 3-5ms |
-| feedbackByUser | 3-8ms |
-| topTags | 8-15ms |
-
-See [PERFORMANCE_CHECKLIST.md](./PERFORMANCE_CHECKLIST.md) for optimization roadmap.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for details.
 
 ## Development
 
 ```bash
-# Start dev server (auto-reloads)
+# Start dev server (auto-reload)
 npm run dev
 
 # Build for production
@@ -115,69 +114,49 @@ npm run build
 npm start
 ```
 
-## Logging & Observability
+## Monitoring
 
-The API logs all queries with timing information:
-[2026-08-02T08:30:15.123Z] INFO: [Query] listFeedback - fetching all feedback
-[2026-08-02T08:30:15.128Z] INFO: Query completed in 5ms (1 rows)
+View logs:
+```bash
+npm run logs
+```
 
-Slow queries (> 100ms) are logged as WARN.
+## Deployment
 
-See [OBSERVABILITY.md](./OBSERVABILITY.md) for details.
-
-## Project Structure
-src/
-├── index.ts # Server setup
-├── db.ts # Database connection
-├── logger.ts # Logging utility
-├── entities/
-│ ├── Feedback.ts # Feedback entity
-│ ├── User.ts # User entity
-│ └── Tag.ts # Tag entity
-├── resolvers/
-│ ├── FeedbackResolver.ts # Feedback queries/mutations
-│ ├── UserResolver.ts # User queries/mutations
-│ └── TagResolver.ts # Tag queries
-└── types/
-├── PaginationArgs.ts # Pagination input type
-└── PaginatedFeedback.ts # Paginated result type
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for AWS setup.
 
 ## Learning Journey
 
-This project was built over 2 weeks to learn:
+This project demonstrates:
+- Full-stack application architecture
+- Database design & optimization
+- GraphQL API design patterns
+- Authentication & authorization
+- Production-ready code structure
+- Logging & observability
+- Docker containerization
+- AWS deployment
 
-**Week 1:**
-- TypeScript + Express
-- GraphQL API design
-- PostgreSQL integration
-- Logging & error handling
+## Key Technologies
 
-**Week 2:**
-- Database schema design
-- Indexing & performance
-- Input validation
-- Pagination & advanced queries
-- Scalability thinking
+- **Runtime**: Node.js 18+
+- **Language**: TypeScript
+- **API**: GraphQL + Express
+- **Database**: PostgreSQL
+- **ORM**: None (direct SQL with pg)
+- **Auth**: JWT
+- **Deployment**: Docker + AWS ECS
+- **Frontend**: React (separate repo)
 
-See [learning-project-guide.md](../learning-project-guide.md) for the full curriculum.
+## Performance
 
-## Future Improvements
+Typical latencies:
+- List feedback: 5-10ms
+- Create feedback: 3-5ms
+- Login: 10-20ms
+- Top tags: 8-15ms
 
-- [ ] Authentication (JWT)
-- [ ] Rate limiting
-- [ ] Redis caching for topTags
-- [ ] Async tag count updates
-- [ ] Database connection pooling optimization
-- [ ] Unit & integration tests
-- [ ] CI/CD pipeline
-- [ ] Deployment to AWS
-
-## Resources
-
-- [GraphQL Docs](https://graphql.org/learn/)
-- [TypeGraphQL Docs](https://typegraphql.com/)
-- [PostgreSQL Docs](https://www.postgresql.org/docs/)
-- [Express Docs](https://expressjs.com/)
+See [PERFORMANCE_CHECKLIST.md](./PERFORMANCE_CHECKLIST.md).
 
 ## License
 
