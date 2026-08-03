@@ -7,13 +7,20 @@ export class FeedbackResolver {
   @Query(() => [Feedback])
   async listFeedback(): Promise<Feedback[]> {
     try {
+      console.log('[Query] listFeedback - fetching all feedback');
+      const startTime = Date.now();
+      
       const result = await pool.query(
         'SELECT id, text, source, created_at as "createdAt" FROM feedback ORDER BY created_at DESC'
       );
+      
+      const duration = Date.now() - startTime;
+      console.log(`[Query] listFeedback - completed in ${duration}ms, returned ${result.rows.length} rows`);
+      
       return result.rows;
     } catch (error) {
-      console.error('Error fetching feedback:', error);
-      throw new Error('Failed to fetch feedback');
+      console.error('[Query] listFeedback - ERROR:', error);
+      throw new Error('Failed to fetch feedback from database');
     }
   }
 
@@ -23,14 +30,22 @@ export class FeedbackResolver {
     @Arg('source', { nullable: true }) source?: string
   ): Promise<Feedback> {
     try {
+      console.log('[Mutation] createFeedback - creating feedback:', { text, source });
+      const startTime = Date.now();
+      
       const result = await pool.query(
         'INSERT INTO feedback (text, source) VALUES ($1, $2) RETURNING id, text, source, created_at as "createdAt"',
         [text, source]
       );
-      return result.rows[0];
+      
+      const duration = Date.now() - startTime;
+      const feedback = result.rows[0];
+      console.log(`[Mutation] createFeedback - completed in ${duration}ms, created feedback id=${feedback.id}`);
+      
+      return feedback;
     } catch (error) {
-      console.error('Error creating feedback:', error);
-      throw new Error('Failed to create feedback');
+      console.error('[Mutation] createFeedback - ERROR:', error);
+      throw new Error('Failed to create feedback in database');
     }
   }
 }

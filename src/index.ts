@@ -13,6 +13,12 @@ async function main() {
 
   const app = express();
 
+  // Add logging middleware
+  app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    next();
+  });
+
   app.use('/graphql', graphqlHTTP({
     schema: schema,
     graphiql: true,
