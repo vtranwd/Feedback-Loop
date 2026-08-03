@@ -5,6 +5,7 @@ import { graphqlHTTP } from 'express-graphql';
 import { FeedbackResolver } from './resolvers/FeedbackResolver';
 import { UserResolver } from './resolvers/UserResolver';
 import { TagResolver } from './resolvers/TagResolver';
+import { Logger } from './logger';
 
 const PORT = 4000;
 
@@ -17,7 +18,14 @@ async function main() {
 
   // Add logging middleware
   app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    const startTime = Date.now();
+    Logger.info(`${req.method} ${req.path}`);
+
+    res.on('finish', () => {
+      const duration = Date.now() - startTime;
+      Logger.info(`Response: ${res.statusCode} - ${duration}ms`);
+    });
+
     next();
   });
 
@@ -27,7 +35,7 @@ async function main() {
   }));
 
   app.listen(PORT, () => {
-    console.log(`GraphQL API running at http://localhost:${PORT}/graphql`);
+    Logger.info(`GraphQL API running at http://localhost:${PORT}/graphql`);
   });
 }
 

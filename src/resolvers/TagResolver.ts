@@ -1,6 +1,7 @@
 import { Resolver, Query, Arg, Int } from 'type-graphql';
 import { Tag } from '../entities/Tag';
 import { pool } from '../db';
+import { Logger } from '../logger';
 
 @Resolver(() => Tag)
 export class TagResolver {
@@ -8,13 +9,18 @@ export class TagResolver {
   async topTags(
     @Arg('limit', () => Int, { defaultValue: 10 }) limit: number
   ): Promise<Tag[]> {
+    // Validate input
+    if (limit < 1 || limit > 100) {
+      Logger.warn('[Query] topTags - Invalid limit', { limit });
+      throw new Error('Limit must be between 1 and 100');
+    }
+
     try {
-      console.log(`[Query] topTags - fetching top ${limit} tags`);
+      Logger.info(`[Query] topTags - Fetching top ${limit} tags`);
       const startTime = Date.now();
 
-      // Count feedback per tag
       const result = await pool.query(
-        `SELECT t.id, t.name, COUNT(ft.feedback_id) as count, t.created_at as "createdAt"
+        `SELECT t.id, t.name, COUNT(ft.feedback_id)::integer as count, t.created_at as "createdAt"
          FROM tags t
          LEFT JOIN feedback_tags ft ON t.id = ft.tag_id
          GROUP BY t.id, t.name, t.created_at
@@ -24,11 +30,11 @@ export class TagResolver {
       );
 
       const duration = Date.now() - startTime;
-      console.log(`[Query] topTags - completed in ${duration}ms, returned ${result.rows.length} tags`);
+      Logger.query('SELECT topTags', duration, result.rows.length);
 
       return result.rows;
     } catch (error) {
-      console.error('[Query] topTags - ERROR:', error);
+      Logger.error('[Query] topTags - Database error', error);
       throw new Error('Failed to fetch top tags');
     }
   }
