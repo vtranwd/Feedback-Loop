@@ -3,12 +3,14 @@ import express from 'express';
 import { buildSchema } from 'type-graphql';
 import { graphqlHTTP } from 'express-graphql';
 import { FeedbackResolver } from './resolvers/FeedbackResolver';
+import { UserResolver } from './resolvers/UserResolver';
+import { TagResolver } from './resolvers/TagResolver';
 
 const PORT = 4000;
 
 async function main() {
   const schema = await buildSchema({
-    resolvers: [FeedbackResolver],
+    resolvers: [FeedbackResolver, UserResolver, TagResolver],
   });
 
   const app = express();
