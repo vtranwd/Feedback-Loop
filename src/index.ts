@@ -5,16 +5,29 @@ import { graphqlHTTP } from 'express-graphql';
 import { FeedbackResolver } from './resolvers/FeedbackResolver';
 import { UserResolver } from './resolvers/UserResolver';
 import { TagResolver } from './resolvers/TagResolver';
+import { AuthResolver } from './resolvers/AuthResolver';
 import { Logger } from './logger';
 
 const PORT = 4000;
 
 async function main() {
   const schema = await buildSchema({
-    resolvers: [FeedbackResolver, UserResolver, TagResolver],
+    resolvers: [FeedbackResolver, UserResolver, TagResolver, AuthResolver],
   });
 
   const app = express();
+
+  // Add CORS middleware
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    next();
+  });
 
   // Add logging middleware
   app.use((req, res, next) => {
