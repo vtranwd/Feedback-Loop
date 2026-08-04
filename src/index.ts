@@ -7,13 +7,22 @@ import { UserResolver } from './resolvers/UserResolver';
 import { TagResolver } from './resolvers/TagResolver';
 import { AuthResolver } from './resolvers/AuthResolver';
 import { Logger } from './logger';
+import { ProjectResolver } from './resolvers/ProjectResolver';
+import { ObservationResolver } from './resolvers/ObservationResolver';
 
 const PORT = 4000;
 
 async function main() {
   const schema = await buildSchema({
-    resolvers: [FeedbackResolver, UserResolver, TagResolver, AuthResolver],
-  });
+  resolvers: [
+    FeedbackResolver,
+    UserResolver,
+    TagResolver,
+    AuthResolver,
+    ProjectResolver,
+    ObservationResolver,
+  ],
+});
 
   const app = express();
 
