@@ -9,6 +9,8 @@ import { AuthResolver } from './resolvers/AuthResolver';
 import { Logger } from './logger';
 import { ProjectResolver } from './resolvers/ProjectResolver';
 import { ObservationResolver } from './resolvers/ObservationResolver';
+import { ImpactMetricResolver } from './resolvers/ImpactMetricResolver';
+import { AlertResolver } from './resolvers/AlertResolver';
 
 const PORT = 4000;
 
@@ -21,6 +23,8 @@ async function main() {
     AuthResolver,
     ProjectResolver,
     ObservationResolver,
+    ImpactMetricResolver,
+    AlertResolver
   ],
 });
 
