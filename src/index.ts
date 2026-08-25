@@ -55,6 +55,14 @@ async function main() {
     next();
   });
 
+  // Root route
+  app.get('/', (req, res) => {
+    res.json({
+      message: 'Feedback Loop GraphQL API',
+      graphql: '/graphql'
+    });
+  });
+
   app.use('/graphql', graphqlHTTP({
     schema: schema,
     graphiql: true,
