@@ -6,61 +6,36 @@ import { FeedbackResolver } from './resolvers/FeedbackResolver';
 import { UserResolver } from './resolvers/UserResolver';
 import { TagResolver } from './resolvers/TagResolver';
 import { AuthResolver } from './resolvers/AuthResolver';
-import { Logger } from './logger';
 import { ProjectResolver } from './resolvers/ProjectResolver';
 import { ObservationResolver } from './resolvers/ObservationResolver';
 import { ImpactMetricResolver } from './resolvers/ImpactMetricResolver';
 import { AlertResolver } from './resolvers/AlertResolver';
+import { Logger } from './logger';
 
 const PORT = process.env.PORT || 4000;
 
 async function main() {
   const schema = await buildSchema({
-  resolvers: [
-    FeedbackResolver,
-    UserResolver,
-    TagResolver,
-    AuthResolver,
-    ProjectResolver,
-    ObservationResolver,
-    ImpactMetricResolver,
-    AlertResolver
-  ],
-});
+    resolvers: [
+      FeedbackResolver,
+      UserResolver,
+      TagResolver,
+      AuthResolver,
+      ProjectResolver,
+      ObservationResolver,
+      ImpactMetricResolver,
+      AlertResolver,
+    ],
+  });
 
   const app = express();
 
-  // Add CORS middleware
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
-    if (req.method === 'OPTIONS') {
-      return res.sendStatus(200);
-    }
+    if (req.method === 'OPTIONS') return res.sendStatus(200);
     next();
-  });
-
-  // Add logging middleware
-  app.use((req, res, next) => {
-    const startTime = Date.now();
-    Logger.info(`${req.method} ${req.path}`);
-
-    res.on('finish', () => {
-      const duration = Date.now() - startTime;
-      Logger.info(`Response: ${res.statusCode} - ${duration}ms`);
-    });
-
-    next();
-  });
-
-  // Root route
-  app.get('/', (req, res) => {
-    res.json({
-      message: 'Feedback Loop GraphQL API',
-      graphql: '/graphql'
-    });
   });
 
   app.use('/graphql', graphqlHTTP({
@@ -69,9 +44,8 @@ async function main() {
   }));
 
   app.listen(PORT, () => {
-    Logger.info(`GraphQL API running at http://localhost:${PORT}/graphql`);
+    Logger.info(`🌍 GraphQL API running at http://localhost:${PORT}/graphql`);
   });
 }
 
 main().catch(console.error);
-
