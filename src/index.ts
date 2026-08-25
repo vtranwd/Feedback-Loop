@@ -12,7 +12,7 @@ import { ObservationResolver } from './resolvers/ObservationResolver';
 import { ImpactMetricResolver } from './resolvers/ImpactMetricResolver';
 import { AlertResolver } from './resolvers/AlertResolver';
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 async function main() {
   const schema = await buildSchema({
@@ -66,3 +66,4 @@ async function main() {
 }
 
 main().catch(console.error);
+
