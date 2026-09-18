@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "apollo-server-express": "^3.13.0",
+    "class-validator": "^0.15.1",
     "express": "^4.18.2",
     "express-graphql": "^0.12.0",
     "glob": "^13.0.6",
@@ -35,4 +36,3 @@
     "typescript": "^5.5.4"
   }
 }
-
