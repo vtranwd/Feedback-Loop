@@ -27,6 +27,7 @@ async function main() {
         ImpactMetricResolver,
         AlertResolver,
       ],
+      validate: false,
     });
 
     console.log('✅ Schema built successfully');
