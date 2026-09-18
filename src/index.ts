@@ -34,10 +34,10 @@ async function main() {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:3001',
-      'https://feedback-loop-frontend-xyz.vercel.app', // Replace with your actual Vercel URL
+      'https://feedback-loop-frontend.vercel.app/', // Replace with your actual Vercel URL
     ];
     
-    const origin = req.headers.origin;
+    const origin = req.headers.origin as string;
     if (allowedOrigins.includes(origin)) {
       res.header('Access-Control-Allow-Origin', origin);
     } else {
