@@ -15,50 +15,62 @@ import { Logger } from './logger';
 const PORT = process.env.PORT || 4000;
 
 async function main() {
-  const schema = await buildSchema({
-    resolvers: [
-      FeedbackResolver,
-      UserResolver,
-      TagResolver,
-      AuthResolver,
-      ProjectResolver,
-      ObservationResolver,
-      ImpactMetricResolver,
-      AlertResolver,
-    ],
-  });
+  try {
+    const schema = await buildSchema({
+      resolvers: [
+        FeedbackResolver,
+        UserResolver,
+        TagResolver,
+        AuthResolver,
+        ProjectResolver,
+        ObservationResolver,
+        ImpactMetricResolver,
+        AlertResolver,
+      ],
+    });
 
-  const app = express();
+    console.log('✅ Schema built successfully');
 
-  app.use((req, res, next) => {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'https://feedback-loop-frontend.vercel.app/', // Replace with your actual Vercel URL
-    ];
-    
-    const origin = req.headers.origin as string;
-    if (allowedOrigins.includes(origin)) {
-      res.header('Access-Control-Allow-Origin', origin);
-    } else {
-      res.header('Access-Control-Allow-Origin', '*');
-    }
-    
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
-    if (req.method === 'OPTIONS') return res.sendStatus(200);
-    next();
-  });
+    const app = express();
 
-  app.use('/graphql', graphqlHTTP({
-    schema: schema,
-    graphiql: true,
-  }));
+    app.use((req, res, next) => {
+      console.log(`📨 ${req.method} ${req.path}`);
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'https://feedback-loop-frontend-xyz.vercel.app',
+      ];
+      
+      const origin = req.headers.origin as string;
+      if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+      } else {
+        res.header('Access-Control-Allow-Origin', '*');
+      }
+      
+      res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      
+      if (req.method === 'OPTIONS') return res.sendStatus(200);
+      next();
+    });
 
-  app.listen(PORT, () => {
-    Logger.info(`🌍 GraphQL API running at http://localhost:${PORT}/graphql`);
-  });
+    app.use('/graphql', graphqlHTTP({
+      schema: schema,
+      graphiql: true,
+      customFormatErrorFn: (error) => {
+        console.error('❌ GraphQL Error:', error);
+        return error;
+      },
+    }));
+
+    app.listen(PORT, () => {
+      console.log(`🌍 GraphQL API running at http://localhost:${PORT}/graphql`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
 }
 
-main().catch(console.error);
+main();
